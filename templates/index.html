@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>OldChat for Kivotos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="uid" content="{{ session.get('uid', '') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 左侧会话列表 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <span class="user-info">{{ session.get('user_name', '用户') }}<br><small>OldChat for Kivotos</small></span>
+                <button id="pinSidebarBtn" class="icon-btn" title="取消固定">◰</button>
+                <button id="aboutBtn" class="icon-btn" title="关于">🛈</button>
+                <button id="logoutBtn" class="icon-btn" title="退出登录">↪</button>
+                <button id="themeToggle" class="icon-btn" title="深浅切换">◐</button>
+            </div>
+            <!--
+            <div class="search-box">
+                <input type="text" placeholder="搜索... (有Bug修不好)" disabled>
+            </div>
+            -->
+            <div class="contact-list" id="contactList">
+                <!-- 动态生成 -->
+            </div>
+        </aside>
+
+        <!-- 右侧聊天区域 -->
+        <main class="chat-area">
+            <div class="chat-header" id="chatHeader">
+                <span>OldChat for Kivotos</span>
+            </div>
+            <div class="messages" id="messagesContainer">
+                <!-- 消息列表 -->
+            </div>
+            <div class="input-area" id="inputArea">
+                <!-- 新增：引用预览条 -->
+                <div class="quote-preview" id="quotePreview" style="display: none;">
+                    <span class="quote-preview-text"></span>
+                    <button id="cancelQuoteBtn" class="icon-btn" title="取消引用">✖</button>
+                </div>
+            
+                <textarea id="messageInput" placeholder="输入消息... (Enter发送, Shift+Enter换行)" rows="2"></textarea>
+                <div class="input-buttons">
+                    <button id="sendEmoticonBtn" class="btn">表情包</button>
+                    <button id="sendImageBtn" class="btn">图片</button>
+                    <button id="moreBtn" class="btn">更多</button>
+                    <button id="sendBtn" class="btn primary">发送</button>
+  
+                </div>
+                <div class="more-menu" id="moreMenu" style="display: none;">
+                    <button id="sendFileBtn">上传文件</button>
+                </div>
+                <input type="file" id="fileInput" style="display: none" multiple>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
