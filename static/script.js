@@ -99,41 +99,46 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event && event.currentTarget) {
             event.currentTarget.classList.add('active');
         }
-
+    
         const convKey = `${type}:${id}`;
         currentConv = { type, id, name, key: convKey };
-
+    
+        // 保存到 localStorage，下次自动恢复
+        try {
+            localStorage.setItem('lastConversation', convKey);
+        } catch (e) {}
+    
         chatHeader.innerHTML = `<span>${escapeHtml(name)}</span>`;
         messagesContainer.innerHTML = '';
-
+    
         // 清除该会话的已见消息记录，确保历史消息重新显示
         if (seenMsgIds[convKey]) {
             delete seenMsgIds[convKey];
         }
-
+    
         pendingQuote = null;
         quotePreview.style.display = 'none';
-
+    
         const reqId = ++switchRequestId;
-
+    
         try {
             const res = await fetch(`/api/messages/${type}/${id}`);
             const data = await res.json();
-
+    
             if (reqId !== switchRequestId) return;
-
+    
             if (data.error) {
                 console.error(data.error);
                 messagesContainer.innerHTML = '<div class="system-msg">加载消息失败，请刷新重试</div>';
                 return;
             }
-
+    
             // 重新创建该会话的已见集合
             if (!seenMsgIds[convKey]) {
                 seenMsgIds[convKey] = new Set();
             }
             const currentSeen = seenMsgIds[convKey];
-
+    
             data.messages.forEach(msg => {
                 appendMessage(msg, convKey, currentSeen);
             });
@@ -771,5 +776,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     expandChat();
-    loadContacts();
+    loadContacts().then(() => {
+        // 读取上次打开的会话
+        const lastConv = localStorage.getItem('lastConversation');
+        if (lastConv) {
+            const [type, id] = lastConv.split(':');
+            if (type && id) {
+                let found = null;
+                if (type === 'direct') {
+                    found = contacts.friends.find(f => f.uid === id);
+                } else if (type === 'group') {
+                    found = contacts.groups.find(g => g.id === id);
+                }
+                if (found) {
+                    const name = found.name || (type === 'direct' ? found.uid : found.id);
+                    switchConversation(type, id, name);
+                }
+            }
+        }
+    });
 });
