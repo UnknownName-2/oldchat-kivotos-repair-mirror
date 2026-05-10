@@ -8,7 +8,9 @@
     --hover: #d0d0d0;
     --active: #c0c0c0;
     --shadow: 0 2px 6px rgba(0,0,0,0.1);
+    --app-bg: url('/static/KivotosBg.jpg');
 }
+
 :root[data-theme="dark"] {
     --bg: #1e1e1e;
     --sidebar-bg: #252526;
@@ -19,6 +21,7 @@
     --hover: #3a3d41;
     --active: #4a4d51;
     --shadow: 0 2px 6px rgba(0,0,0,0.5);
+    --app-bg: url('/static/KivotosBlurBg.jpg');
 }
 
 @font-face {
@@ -47,22 +50,14 @@
     background: #777;
 }
 
-:root[data-theme="dark"] .contact-list::-webkit-scrollbar {
-    width: 6px;
+:root[data-theme="dark"] .contact-list {
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
-
-:root[data-theme="dark"] .contact-list::-webkit-scrollbar-track {
-    background: #252526;
-    border-radius: 3px;
-}
-
 :root[data-theme="dark"] .contact-list::-webkit-scrollbar-thumb {
-    background: #555;
-    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.2);
 }
-
 :root[data-theme="dark"] .contact-list::-webkit-scrollbar-thumb:hover {
-    background: #777;
+    background: rgba(255, 255, 255, 0.4);
 }
 
 * {
@@ -83,6 +78,7 @@ body {
     display: flex;
     height: 100vh;
     overflow: hidden;
+    background: var(--app-bg) center / cover no-repeat fixed;
 }
 
 /* 左侧边栏 */
@@ -92,12 +88,20 @@ body {
     top: 0;
     height: 100vh;
     width: 280px;
-    background: var(--sidebar-bg);
     display: flex;
     flex-direction: column;
     border-right: 1px solid var(--border);
     transition: transform 0.3s ease;
     z-index: 10;
+    background: rgba(245, 245, 245, 0.85);
+}
+:root[data-theme="light"] .sidebar {
+    background: rgba(245, 245, 245, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+:root[data-theme="dark"] .sidebar {
+    background: rgba(37, 37, 38, 0.85);
 }
 .sidebar.collapsed {
     transform: translateX(-100%);
@@ -106,8 +110,9 @@ body {
     display: flex;
     align-items: center;
     padding: 12px;
-    border-bottom: 1px solid var(--border);
     gap: 5px;
+    background: transparent;
+    border-bottom: 1px solid var(--border);
 }
 .user-info {
     flex: 1;
@@ -141,8 +146,24 @@ body {
 .contact-list {
     flex: 1;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+.contact-list::-webkit-scrollbar {
+    width: 5px;
+}
+.contact-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+.contact-list::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2.5px;
+}
+.contact-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.4);
 }
 .contact-item {
+    background: transparent;
     padding: 12px 15px;
     cursor: pointer;
     border-bottom: 1px solid var(--border);
@@ -153,10 +174,14 @@ body {
     width: calc(100% - 12px);
 }
 .contact-item:hover {
-    background: var(--hover);
+    background: rgba(0, 0, 0, 0.05);
+}
+:root[data-theme="dark"] .contact-item:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 .contact-item.active {
     background: var(--active);
+    background: rgba(0, 120, 212, 0.2);
     font-weight: 500;
 }
 .contact-item .name {
@@ -172,17 +197,25 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: var(--chat-bg);
-    margin-left: 280px;           /* 给侧边栏留空 */
+    background: transparent;
+    margin-left: 280px;
     transition: margin-left 0.3s ease;
+}
+:root[data-theme="dark"] .chat-area {
+    background: rgba(45, 45, 48, 0.8);
 }
 .chat-header {
     padding: 12px 20px;
     font-size: 16px;
     font-weight: 500;
     border-bottom: 1px solid var(--border);
-    background: inherit;
+    background: transparent;
     font-family: 'zyyt', '微软雅黑', 'Microsoft YaHei', sans-serif;
+}
+:root[data-theme="light"] .chat-header {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 .messages {
     flex: 1;
@@ -191,6 +224,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    background: transparent;
+    scrollbar-color: rgba(128, 128, 128, 0.3) transparent;
 }
 .message {
     display: flex;
@@ -208,6 +243,7 @@ body {
     flex-direction: row;
 }
 .msg-avatar {
+    border: none;
     width: 36px;
     height: 36px;
     border-radius: 50%;
@@ -216,7 +252,6 @@ body {
     cursor: pointer;
     flex-shrink: 0;
     object-fit: cover;
-    border: 1px solid var(--border);
 }
 .message-content {
     display: flex;
@@ -293,7 +328,15 @@ body {
 .input-area {
     border-top: 1px solid var(--border);
     padding: 10px;
-    background: var(--sidebar-bg);
+    background: transparent;
+}
+:root[data-theme="light"] .input-area {
+    background: rgba(245, 245, 245, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+:root[data-theme="dark"] .input-area {
+    background: rgba(37, 37, 38, 0.85);
 }
 .input-area textarea {
     width: 100%;
@@ -577,7 +620,6 @@ body {
     white-space: nowrap;
 }
 
-/* 表情包选择器 */
 .emoticon-picker {
     position: fixed;
     bottom: 80px;
@@ -623,3 +665,68 @@ body {
     border-color: #0078d4;
     background: var(--active);
 }
+
+:root[data-theme="light"] .chat-header {
+    border-bottom-color: rgba(225, 225, 225, 0.8);
+}
+:root[data-theme="light"] .input-area {
+    border-top-color: rgba(225, 225, 225, 0.9);
+}
+
+:root[data-theme="light"] .message-sender {
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] .chat-header span {
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme="light"] .sidebar {
+    color: #ffffff;
+}
+
+:root[data-theme="light"] .user-info {
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme="light"] .contact-item .name {
+    color: #ffffff;
+}
+
+:root[data-theme="light"] .contact-item .uid {
+    color: #dddddd;      /* 浅灰色 */
+}
+
+:root[data-theme="light"] .contact-item.active .name,
+:root[data-theme="light"] .contact-item.active .uid {
+    color: #ffffff;
+}
+
+:root[data-theme="light"] .search-box input::placeholder {
+    color: #cccccc;
+}
+
+/* 全局按钮按压动画 */
+.btn, .context-menu-item, .contact-item, .more-menu button, .icon-btn,
+.file-download-btn, .quote-preview .icon-btn, .emoticon-item, .red-packet-card {
+    transition: transform 0.1s ease;
+}
+.btn:active, .context-menu-item:active, .contact-item:active,
+.more-menu button:active, .icon-btn:active, .file-download-btn:active,
+.quote-preview .icon-btn:active, .emoticon-item:active, .red-packet-card:active {
+    transform: scale(0.9);
+}
+
+:root[data-theme="light"] .user-info {
+    color: #00000059;
+    text-shadow: none;
+}
+:root[data-theme="light"] .user-info small {
+    color: #00000059;
+    text-shadow: none;
+}
+
+/* 2026-5-10 9:20: 这个 CSS 已经烂的没法维护了，全是大量重复声明 */

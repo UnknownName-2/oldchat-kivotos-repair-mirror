@@ -598,21 +598,25 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebarPinned = !sidebarPinned;
         if (sidebarPinned) {
             sidebar.classList.remove('collapsed');
-            pinSidebarBtn.innerHTML = '◰';
+            pinSidebarBtn.innerHTML = '▣';
             pinSidebarBtn.title = '取消固定';
+            expandChat();
+            // 动画完成后强制调整宽度
+            setTimeout(expandChat, 350);
         } else {
             sidebar.classList.add('collapsed');
-            pinSidebarBtn.innerHTML = '▣';
+            pinSidebarBtn.innerHTML = '◰';
             pinSidebarBtn.title = '固定侧边栏';
+            expandChat();
         }
-        expandChat();
     });
 
     // 鼠标移到屏幕最左侧边缘时，如果未固定且隐藏，则展开
     document.addEventListener('mousemove', (e) => {
         if (!sidebarPinned && sidebar.classList.contains('collapsed') && e.clientX < 5) {
             sidebar.classList.remove('collapsed');
-            expandChat();  // 展开时 margin-left 恢复
+            expandChat();
+            setTimeout(expandChat, 350);
         }
     });
 
