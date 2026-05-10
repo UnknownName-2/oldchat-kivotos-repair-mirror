@@ -197,15 +197,34 @@ body {
     flex-direction: column;
     max-width: 70%;
     word-wrap: break-word;
+    margin-bottom: 4px;
 }
 .message.self {
     align-self: flex-end;
+    flex-direction: column;
 }
 .message.other {
     align-self: flex-start;
+    flex-direction: row;
+}
+.msg-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    margin-right: 10px;
+    margin-top: 15px;
+    cursor: pointer;
+    flex-shrink: 0;
+    object-fit: cover;
+    border: 1px solid var(--border);
+}
+.message-content {
+    display: flex;
+    flex-direction: column;
+    max-width: 100%;
 }
 
-/* ========= 蔚蓝档案风格气泡 ========= */
+/* 聊天气泡 */
 .message-bubble {
     position: relative;
     padding: 6px 10px;
@@ -217,7 +236,6 @@ body {
     font-family: 'zyyt', '微软雅黑', 'Microsoft YaHei', sans-serif;
 }
 
-/* 左侧学生气泡（other）背景 RGB(76,91,112) + 左三角 */
 .message.other .message-bubble {
     background-color: rgb(76, 91, 112);
 }

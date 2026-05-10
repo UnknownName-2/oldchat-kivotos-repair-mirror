@@ -269,11 +269,34 @@ document.addEventListener('DOMContentLoaded', () => {
         msgDiv.dataset.fromUid = msg.from_uid || '';
         msgDiv.dataset.fromName = msg.from_name || msg.from_uid || '';
         msgDiv.dataset.msgType = msg.msg_type || 'text';
-        msgDiv.innerHTML = `
+        
+        if (!isSelf) {
+            // 添加头像
+            const avatarUrl = msg.from_avatar || '/static/default-avatar.png'; // 默认头像
+            const avatarImg = document.createElement('img');
+            avatarImg.src = avatarUrl;
+            avatarImg.className = 'msg-avatar';
+            avatarImg.onerror = () => { avatarImg.src = '/static/default-avatar.png'; };
+            avatarImg.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const uid = msg.from_uid;
+                if (uid) {
+                    window.location.href = `/space/${uid}`;
+                }
+            });
+            msgDiv.appendChild(avatarImg);
+        }
+        
+        // 气泡包裹层
+        const bubbleWrapper = document.createElement('div');
+        bubbleWrapper.className = 'message-content';
+        bubbleWrapper.innerHTML = `
             ${msg.group_id && !isSelf ? `<div class="message-sender">${escapeHtml(sender)}</div>` : ''}
             <div class="message-bubble">${content}</div>
             <div class="message-time">${time}</div>
         `;
+        msgDiv.appendChild(bubbleWrapper);
+        
         const bubble = msgDiv.querySelector('.message-bubble');
         if (bubble) {
             msgDiv.dataset.plainText = bubble.innerText;

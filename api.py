@@ -22,6 +22,122 @@ def fix_message_urls(msg):
     return msg
 
 def enrich_message_names(msgs, conv_type, conv_id=None):
+    if not g.api or not msgs:
+        return
+    uid_map = {}
+    avatar_map = {}
+    base = g.api.base_url  # 获取基础 URL
+    try:
+        if conv_type == 'direct':
+            friends = g.api.get_friends()
+            for f in friends:
+                uid = f.get('uid', '').upper()
+                uid_map[uid] = f.get('display_name') or f.get('username') or f.get('uid')
+                avatar = f.get('avatar_url', '')
+                if avatar and avatar.startswith('/'):
+                    avatar = base + avatar
+                avatar_map[uid] = avatar
+        elif conv_type == 'group' and conv_id:
+            resp = g.api._request('GET', '/v1/groups/members', params={"group_id": conv_id})
+            members_list = resp.get('members', [])
+            for m in members_list:
+                uid = m.get('uid', '').upper()
+                uid_map[uid] = m.get('display_name', m.get('uid'))
+                avatar = m.get('avatar_url', '')
+                if avatar and avatar.startswith('/'):
+                    avatar = base + avatar
+                avatar_map[uid] = avatar
+    except Exception as e:
+        print(f"[enrich] 获取名称映射失败: {e}")
+        return
+
+    for msg in msgs:
+        from_uid = msg.get('from_uid', '')
+        if not from_uid:
+            continue
+        if not msg.get('from_name'):
+            name = uid_map.get(from_uid.upper(), '')
+            if name:
+                msg['from_name'] = name
+        if not msg.get('from_avatar'):
+            avatar = avatar_map.get(from_uid.upper(), '')
+            if avatar:
+                msg['from_avatar'] = avatar
+    if not g.api or not msgs:
+        return
+    uid_map = {}
+    avatar_map = {}
+    try:
+        if conv_type == 'direct':
+            friends = g.api.get_friends()
+            for f in friends:
+                uid = f.get('uid', '').upper()
+                uid_map[uid] = f.get('display_name') or f.get('username') or f.get('uid')
+                avatar_map[uid] = f.get('avatar_url', '')
+        elif conv_type == 'group' and conv_id:
+            # 使用群成员接口获取完整信息
+            resp = g.api._request('GET', '/v1/groups/members', params={"group_id": conv_id})
+            members_list = resp.get('members', [])
+            for m in members_list:
+                uid = m.get('uid', '').upper()
+                uid_map[uid] = m.get('display_name', m.get('uid'))
+                avatar_map[uid] = m.get('avatar_url', '')
+    except Exception as e:
+        print(f"[enrich] 获取名称映射失败: {e}")
+        return
+
+    for msg in msgs:
+        from_uid = msg.get('from_uid', '')
+        if not from_uid:
+            continue
+        if not msg.get('from_name'):
+            name = uid_map.get(from_uid.upper(), '')
+            if name:
+                msg['from_name'] = name
+        if not msg.get('from_avatar'):
+            avatar = avatar_map.get(from_uid.upper(), '')
+            if avatar:
+                msg['from_avatar'] = avatar
+            # 还是没有
+    """为消息补充 from_name 和 from_avatar"""
+    if not g.api or not msgs:
+        return
+    uid_map = {}
+    avatar_map = {}
+    try:
+        if conv_type == 'direct':
+            friends = g.api.get_friends()
+            for f in friends:
+                uid = f.get('uid', '').upper()
+                uid_map[uid] = f.get('display_name') or f.get('username') or f.get('uid')
+                avatar_map[uid] = f.get('avatar_url', '')
+        elif conv_type == 'group' and conv_id:
+            members = g.api.get_group_members(conv_id)
+            for uid, name in members.items():
+                uid_map[uid.upper()] = name
+            # 群成员列表中没有头像，可不补充，或再调用用户资料接口（费时），暂时留空
+            # 如果后续需要，可以调用 /users/profile?uid=xxx 但不要在这里做太多请求
+    except Exception as e:
+        print(f"[enrich] 获取名称映射失败: {e}")
+        return
+
+    for msg in msgs:
+        from_uid = msg.get('from_uid', '')
+        if not from_uid:
+            continue
+        # 名称
+        if not msg.get('from_name'):
+            name = uid_map.get(from_uid.upper(), '')
+            if name:
+                msg['from_name'] = name
+        # 头像
+        if not msg.get('from_avatar'):
+            avatar = avatar_map.get(from_uid.upper(), '')
+            if avatar:
+                # 绝对路径
+                if avatar.startswith('/'):
+                    avatar = g.api.base_url + avatar
+                msg['from_avatar'] = avatar
     """为消息补充 from_name（昵称），如果缺失则从服务器获取"""
     if not g.api or not msgs:
         return
