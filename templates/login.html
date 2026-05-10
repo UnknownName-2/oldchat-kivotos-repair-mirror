@@ -4,282 +4,119 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>OldChat for Kivotos</title>
+
+    <script>
+        var WALLPAPER_BASE = '{{ url_for('static', filename='arona_wallpaper/') }}';
+    </script>
+    <script src="{{ url_for('static', filename='arona_wallpaper/lib/spine-webgl.js') }}"></script>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        @font-face {
+            font-family: 'zyyt';
+            src: url('/static/zyyt.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
         }
-
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            background: #eef2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        /* 卡片容器：优化内边距，呼吸感增加，但仍然简洁 */
-        .login-card {
-            background: white;
-            padding: 2rem 2rem 2.2rem 2rem;
-            border-radius: 20px;
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.02);
-            width: 100%;
-            max-width: 380px;
-            transition: all 0.2s ease;
-        }
-
-        /* 标题区域保留轻量的优雅感 */
-        .login-card h1 {
-            margin: 0 0 0.35rem 0;
-            font-weight: 500;
-            font-size: 1.8rem;
-            letter-spacing: -0.3px;
-            color: #1f2a3e;
-        }
-
-        /* 可爱的副文案 - 增加头像布局 */
-        .greeting {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.95rem;
-            color: #5a6874;
-            margin-bottom: 1.8rem;
-            border-left: 3px solid #b0c4de;
-            padding-left: 12px;
-            font-weight: 400;
-        }
-
-        /* 阿罗娜头像样式 - 圆形可爱 */
-        .arona-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            object-fit: cover;
-            flex-shrink: 0;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            background: #eef2ff;
-        }
-
-        /* 保证文字自适应 */
-        .greeting-text {
-            flex: 1;
-        }
-
-        /* 表单组轻微增加垂直间距，输入框更舒适 */
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-
-        .login-card input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #cfdde6;
-            border-radius: 14px;
-            font-size: 0.95rem;
-            font-family: inherit;
-            background-color: #fff;
-            transition: 0.2s;
-            outline: none;
-            color: #1e2a3e;
-        }
-
-        .login-card input:focus {
-            border-color: #0078d4;
-            box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.15);
-        }
-
-        .login-card input::placeholder {
-            color: #9aaebf;
-            font-weight: 400;
-            font-size: 0.9rem;
-        }
-
-        /* 按钮更有亲和力，间距舒适 */
-        .login-card button {
-            width: 100%;
-            padding: 12px 16px;
-            background: #0078d4;
-            color: white;
-            border: none;
-            border-radius: 40px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.05s;
-            margin-top: 6px;
-            letter-spacing: 0.3px;
-        }
-
-        .login-card button:hover {
-            background: #106ebe;
-        }
-
-        .login-card button:active {
-            transform: scale(0.98);
-        }
-
-
-        .error {
-            background: #fff5f5;
-            color: #c23d3d;
-            padding: 10px 14px;
-            border-radius: 14px;
-            font-size: 0.85rem;
-            margin-bottom: 1.25rem;
-            border-left: 3px solid #c23d3d;
-            font-weight: 500;
-        }
-
-        /* 复选框行样式 - 保持与整体一致的清新感 */
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 0.5rem 0 1rem 0;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            margin: 0;
-            cursor: pointer;
-            accent-color: #0078d4;
-            flex-shrink: 0;
-        }
-
-        .checkbox-group label {
-            font-size: 0.9rem;
-            color: #2c3e4e;
-            cursor: pointer;
-            user-select: none;
-            font-weight: 450;
-        }
-
-        .extra-note {
-            text-align: center;
-            margin-top: 1.5rem;
-            font-size: 0.7rem;
-            color: #94a3b8;
-            border-top: 1px solid #eaedf0;
-            padding-top: 1rem;
-        }
-
-        /* 移动端保持舒适边距 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { margin: 0; font-family: 'zyyt', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; overflow: hidden; background: #eef2f5; }
+        #wallpaper-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+        #wallpaper-bg canvas { display: block; width: 100%; height: 100%; }
+        #textbox { display: none !important; }
+        .login-wrapper { position: relative; z-index: 10; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; pointer-events: none; }
+        .login-card { pointer-events: auto; background: white; padding: 2rem 2rem 2.2rem 2rem; border-radius: 20px; box-shadow: 0 12px 28px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.04); width: 100%; max-width: 380px; transition: all 0.2s; text-align: left; }
+        .login-card h1 { margin-bottom: 0.35rem; font-weight: 500; font-size: 1.8rem; color: #1f2a3e; letter-spacing: -0.3px; }
+        .greeting { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: #5a6874; margin-bottom: 1.8rem; border-left: 3px solid #b0c4de; padding-left: 12px; font-weight: 400; }
+        .arona-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.1); background: #eef2ff; }
+        .greeting-text { flex: 1; }
+        .form-group { margin-bottom: 1.25rem; }
+        .login-card input { width: 100%; padding: 12px 16px; border: 1px solid #cfdde6; border-radius: 14px; font-size: 0.95rem; font-family: 'zyyt', inherit; background-color: #fff; transition: 0.2s; outline: none; color: #1e2a3e; }
+        .login-card input:focus { border-color: #0078d4; box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.15); }
+        .login-card input::placeholder { color: #9aaebf; font-weight: 400; font-size: 0.9rem; }
+        .login-card button { width: 100%; padding: 12px 16px; background: #0078d4; color: white; border: none; border-radius: 40px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: background 0.2s, transform 0.05s; margin-top: 6px; letter-spacing: 0.3px; }
+        .login-card button:hover { background: #106ebe; }
+        .login-card button:active { transform: scale(0.98); }
+        .error { background: #fff5f5; color: #c23d3d; padding: 10px 14px; border-radius: 14px; font-size: 0.85rem; margin-bottom: 1.25rem; border-left: 3px solid #c23d3d; font-weight: 500; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin: 0.5rem 0 1rem 0; justify-content: flex-start; text-align: left; }
+        .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; margin: 0; cursor: pointer; accent-color: #0078d4; flex-shrink: 0; }
+        .checkbox-group label { font-size: 0.9rem; color: #2c3e4e; cursor: pointer; user-select: none; font-weight: 450; }
+        .extra-note { text-align: center; margin-top: 1.5rem; font-size: 0.7rem; color: #94a3b8; border-top: 1px solid #eaedf0; padding-top: 1rem; }
         @media (max-width: 480px) {
-            .login-card {
-                padding: 1.6rem 1.5rem 1.9rem;
-            }
-            .login-card h1 {
-                font-size: 1.6rem;
-            }
-            .arona-avatar {
-                width: 32px;
-                height: 32px;
-            }
-            .checkbox-group label {
-                font-size: 0.85rem;
-            }
+          .login-card { padding: 1.6rem 1.5rem 1.9rem; }
+          .login-card h1 { font-size: 1.6rem; }
+          .arona-avatar { width: 32px; height: 32px; }
+          .checkbox-group label { font-size: 0.85rem; }
         }
     </style>
 </head>
 <body>
-<div class="login-card">
-    <h1>OldChat for Kivotos</h1>
-    <div class="greeting">
-        <!-- 使用线上占位图片保证展示，如果未找到本地资源则显示可爱的默认 emoji 兜底，但不影响原有风格 -->
-        <img class="arona-avatar" src="./static/arona.png" alt="阿罗娜" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%23b0c4de\'/%3E%3Ctext x=\'50\' y=\'67\' font-size=\'40\' text-anchor=\'middle\' fill=\'%23ffffff\'%3E🌸%3C/text%3E%3C/svg%3E';">
-        <span class="greeting-text">Sensei 欢迎回来，等你很久啦</span>
+
+    <!-- 阿罗娜动态壁纸背景 -->
+    <div id="wallpaper-bg">
+        <div id="textbox" class="textbox"></div>
+        <canvas id="canvas"></canvas>
     </div>
 
-    {% if error %}
-        <p class="error">{{ error }}</p>
-    {% endif %}
+    <!-- 登录卡片 -->
+    <div class="login-wrapper">
+        <div class="login-card">
+            <h1>OldChat for Kivotos</h1>
+            <div class="greeting">
+                <span class="greeting-text">Sensei 欢迎回来，等你很久啦</span>
+            </div>
 
-    <form method="POST" id="loginForm">
-        <div class="form-group">
-            <input type="text" name="identifier" id="identifier" placeholder="账号 / 邮箱 / UID" required autofocus>
-        </div>
-        <div class="form-group">
-            <input type="password" name="password" id="password" placeholder="密码" required>
-        </div>
-        <!-- 记住账户复选框：勾选后登录时自动保存账号密码到localStorage -->
-        <div class="checkbox-group">
-            <input type="checkbox" id="rememberAccountCheckbox">
-            <label for="rememberAccountCheckbox">记住账户</label>
-        </div>
-        <button type="submit">重返基沃托斯</button>
-    </form>
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
 
-    <div class="extra-note">
-        OldChat for Kivotos
+            <form method="POST" id="loginForm">
+                <div class="form-group">
+                    <input type="text" name="identifier" id="identifier" placeholder="账号 / 邮箱 / UID" required autofocus>
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" id="password" placeholder="密码" required>
+                </div>
+                <div class="checkbox-group" style="display: flex; align-items: center; gap: 10px; margin: 0.5rem 0 1rem 0;">
+                    <input type="checkbox" id="rememberAccountCheckbox">
+                    <label for="rememberAccountCheckbox">记住账户</label>
+                </div>
+                <button type="submit">进入什亭之箱</button>
+            </form>
+
+            <div class="extra-note" style="text-align: center; margin-top: 1.5rem; font-size: 0.7rem; color: #94a3b8;">
+                OldChat for Kivotos
+            </div>
+        </div>
     </div>
-</div>
 
-<script>
-    // ---------- 最基础实现：仅保存/填充账户和密码，无额外判断逻辑 ----------
-    // 1. 页面加载时，如果本地存储中有 savedIdentifier 和 savedPassword，则自动填充到表单
-    (function autoFillCredentials() {
-        try {
-            const savedId = localStorage.getItem('savedIdentifier');
-            const savedPwd = localStorage.getItem('savedPassword');
-            if (savedId) {
-                const identifierInput = document.getElementById('identifier');
-                if (identifierInput) identifierInput.value = savedId;
-            }
-            if (savedPwd) {
-                const passwordInput = document.getElementById('password');
-                if (passwordInput) passwordInput.value = savedPwd;
-            }
-            // 如果有保存过任何账户信息，就默认把复选框也勾选上 (让用户感知到已经处于记住状态，符合习惯)
-            // 但是为了避免覆盖用户意图：如果本地存在至少账号，那么复选框就默认选中，因为保存记录一般代表之前勾选过。
-            // 这样做更自然，且不增加复杂逻辑。完全符合“最基础的功能”。
-            const checkbox = document.getElementById('rememberAccountCheckbox');
-            if (checkbox && (savedId || savedPwd)) {
-                checkbox.checked = true;
-            }
-        } catch(e) {
-            // 静默失败，保证不影响页面主要功能
-            console.warn("读取本地存储失败", e);
-        }
-    })();
+    <!-- 2. 最后加载壁纸主逻辑 -->
+    <script src="{{ url_for('static', filename='arona_wallpaper/js/main.js') }}"></script>
 
-    // 2. 监听表单提交事件，如果复选框已勾选，则将当前输入的账号和密码保存到 localStorage。
-    //    未勾选时不做任何保存操作，同时不清除已经存储过的内容（遵循最简原则不主动清除，由用户自己管理）。
-    //    注意：为了满足“点击登录按钮如果复选框勾选则自动保存”，使用 submit 事件确保表单提交时保存。
-    const form = document.getElementById('loginForm');
-    if (form) {
-        form.addEventListener('submit', function(evt) {
-            const rememberCheck = document.getElementById('rememberAccountCheckbox');
-            // 只有复选框勾选时，才保存账户和密码
-            if (rememberCheck && rememberCheck.checked) {
-                const identifierInput = document.getElementById('identifier');
-                const passwordInput = document.getElementById('password');
-                let identifierValue = '';
-                let passwordValue = '';
-                if (identifierInput) identifierValue = identifierInput.value;
-                if (passwordInput) passwordValue = passwordInput.value;
-                try {
-                    // 保存到本地存储
-                    localStorage.setItem('savedIdentifier', identifierValue);
-                    localStorage.setItem('savedPassword', passwordValue);
-                } catch(e) {
-                    console.warn("保存账户信息失败", e);
+    <!-- 3. 保留你原来的记住账户脚本 -->
+    <script>
+        (function autoFillCredentials() {
+            try {
+                const savedId = localStorage.getItem('savedIdentifier');
+                const savedPwd = localStorage.getItem('savedPassword');
+                if (savedId) document.getElementById('identifier').value = savedId;
+                if (savedPwd) document.getElementById('password').value = savedPwd;
+                const checkbox = document.getElementById('rememberAccountCheckbox');
+                if (checkbox && (savedId || savedPwd)) checkbox.checked = true;
+            } catch(e) {}
+        })();
+
+        const form = document.getElementById('loginForm');
+        if (form) {
+            form.addEventListener('submit', function(evt) {
+                const rememberCheck = document.getElementById('rememberAccountCheckbox');
+                if (rememberCheck && rememberCheck.checked) {
+                    try {
+                        localStorage.setItem('savedIdentifier', document.getElementById('identifier').value);
+                        localStorage.setItem('savedPassword', document.getElementById('password').value);
+                    } catch(e) {}
                 }
-            } else {
-                // 注意最简要求里没提需要额外清除的操作，所以不做删除；用户如果取消勾选，不会删除已有的存储，
-                // 不会干扰“记住账户”的基础行为，完全符合最小功能要求。但可选让用户下次打开仍然填充保留以前的数据，
-                // 不过为了完全符合直觉，由于不清除存储下次打开依旧会填充旧数据（但只要不勾选不会覆盖保存新的）。
-                // 根据“基础功能，不要额外判断”，避免增加额外逻辑，完全符合规范。
-            }
-            // 表单继续正常提交，不阻止任何后端逻辑
-        });
-    }
-</script>
+            });
+        }
+    </script>
 </body>
 </html>

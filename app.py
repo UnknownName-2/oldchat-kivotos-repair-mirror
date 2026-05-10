@@ -44,6 +44,11 @@ def create_app():
         #return render_template('space.html', uid=uid)
 
 if __name__ == '__main__':
+    import logging
+    from waitress import serve
     app = create_app()
-    #serve(app, host='0.0.0.0', port=5000, threads=4)
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    
+    logger = logging.getLogger('waitress')
+    logger.setLevel(logging.INFO)
+    
+    serve(app, host='0.0.0.0', port=5000, threads=8)
