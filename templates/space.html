@@ -51,6 +51,27 @@
                 <img src="{{ user.get('cover_url') }}" alt="封面" style="max-width:100%; border-radius:8px;">
             </div>
             {% endif %}
+            {% if moments %}
+            <div class="info-section">
+                <h2 class="section-title">最近动态</h2>
+                {% for moment in moments %}
+                <div class="moment-item">
+                    <div class="moment-header">
+                        <span class="moment-name">{{ moment.get('from_name', moment.get('from_uid', '')) }}</span>
+                        <span class="moment-time">{{ moment.get('created_at') | int | datetimeformat }}</span>
+                    </div>
+                    <div class="moment-body">{{ moment.get('body', '') }}</div>
+                    {% if moment.get('image_url') %}
+                    <img class="moment-image" src="{{ moment.get('image_url') }}" alt="动态图片">
+                    {% endif %}
+                    <div class="moment-footer">
+                        <span>❤️ {{ moment.get('likes', 0) }}</span>
+                        <span>💬 {{ moment.get('comments', 0) }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
 
         <button class="back-button" onclick="window.location.href='/'">返回聊天</button>

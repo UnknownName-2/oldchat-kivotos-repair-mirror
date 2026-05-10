@@ -131,3 +131,45 @@ body {
         height: 52px;
     }
 }
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 550;
+    color: #1f2a3e;
+    margin-bottom: 0.8rem;
+}
+.moment-item {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+    border: 1px solid #e9edf2;
+}
+.moment-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #5a6874;
+    margin-bottom: 6px;
+}
+.moment-name {
+    font-weight: 600;
+    color: #1f2a3e;
+}
+.moment-body {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+.moment-image {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+.moment-footer {
+    display: flex;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: #5a6874;
+}

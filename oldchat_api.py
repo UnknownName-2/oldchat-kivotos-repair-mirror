@@ -327,3 +327,22 @@ class OldChatAPI:
         # Space 个人空间信息获取
         data = self._request('GET', '/v1/users/profile', params={"uid": uid})
         return data
+    
+    def get_user_moments(self, uid: str, limit: int = 10, offset: int = 0) -> List[Dict]:
+        # 获取朋友圈动态
+        data = self._request('GET', '/v1/moments/user', params={
+            "uid": uid,
+            "limit": limit,
+            "offset": offset
+        })
+        moments = data.get('moments', [])
+        # 头像绝对路径
+        base = self.base_url
+        for m in moments:
+            avatar = m.get('from_avatar', '')
+            if avatar and avatar.startswith('/'):
+                m['from_avatar'] = base + avatar
+            img = m.get('image_url', '')
+            if img and img.startswith('/'):
+                m['image_url'] = base + img
+        return moments

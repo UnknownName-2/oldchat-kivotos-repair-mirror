@@ -12,9 +12,12 @@
         }
 
         body {
+            background-image: url('/static/KivotosBg2.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             margin: 0;
             font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            background: #eef2f5;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -53,17 +56,6 @@
             border-left: 3px solid #b0c4de;
             padding-left: 12px;
             font-weight: 400;
-        }
-
-        
-        .arona-avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            object-fit: cover;
-            flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            background: #eef2ff;
         }
 
         .greeting-text {
@@ -167,14 +159,13 @@
     <h1>OldChat for Kivotos</h1>
     <div class="greeting">
 
-        <img class="arona-avatar" src="./arona.png" alt="阿罗娜" onerror="this.onerror=null; this.style.opacity='0';">
         <span class="greeting-text">Sensei，欢迎来到关于页面</span>
     </div>
 
     <div class="about-section">
         <div class="info-panel">
             <h3>项目介绍</h3>
-            <p>「OldChat for Kivotos」是专门为基沃托斯打造的特殊版本，使 Sensei 和学生们也能获得最好的体验。</p>
+            <p>「OldChat for Kivotos」是专门为基沃托斯打造的特殊 OldChat 版本，使 Sensei 们也能获得最好的体验。</p>
         </div>
 
         <div class="info-panel">
@@ -184,7 +175,7 @@
 
         <div class="info-panel">
             <h3>技术构成</h3>
-            <p>前端: HTML+CSS+JS<br>后端: Python+Flask</p>
+            <p>前端: HTML+CSS+JS<br>后端: Python+Flask+Waitress</p>
         </div>
 
         <div class="info-panel">
