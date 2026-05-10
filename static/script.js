@@ -197,18 +197,23 @@ document.addEventListener('DOMContentLoaded', () => {
                                     `<span class="mention-highlight" data-uid="${escapeHtml(m.uid || '')}">@${escapeHtml(name)}</span>`);
                             });
                         }
-                        content = quoteHtml + (textBody ? `<div>${textBody}</div>` : '');
+                        // 保留换行
+                        textBody = textBody.replace(/\n/g, '<br>');
+                        content = quoteHtml + (textBody ? `<div style="white-space: pre-wrap; word-break: break-word;">${textBody}</div>` : '');
                     } else {
                         body = escapeHtml(body);
-                        content = `<div>${body}</div>`;
+                        body = body.replace(/\n/g, '<br>');
+                        content = `<div style="white-space: pre-wrap; word-break: break-word;">${body}</div>`;
                     }
                 } catch (e) {
                     body = escapeHtml(body);
-                    content = `<div>${body}</div>`;
+                    body = body.replace(/\n/g, '<br>');
+                    content = `<div style="white-space: pre-wrap; word-break: break-word;">${body}</div>`;
                 }
             } else {
                 body = escapeHtml(body);
-                content = `<div>${body}</div>`;
+                body = body.replace(/\n/g, '<br>');
+                content = `<div style="white-space: pre-wrap; word-break: break-word;">${body}</div>`;
             }
         } else if (msgType === 'image') {
             content = `<img src="${msg.media_url}" style="max-width:200px; max-height:200px; cursor:pointer;" onclick="window.open(this.src)">`;
@@ -274,10 +279,10 @@ document.addEventListener('DOMContentLoaded', () => {
         msgDiv.dataset.fromUid = msg.from_uid || '';
         msgDiv.dataset.fromName = msg.from_name || msg.from_uid || '';
         msgDiv.dataset.msgType = msg.msg_type || 'text';
-        
+    
         if (!isSelf) {
-            // 添加头像
-            const avatarUrl = msg.from_avatar || '/static/default-avatar.png'; // 默认头像
+            // 对方消息添加头像
+            const avatarUrl = msg.from_avatar || '/static/default-avatar.png';
             const avatarImg = document.createElement('img');
             avatarImg.src = avatarUrl;
             avatarImg.className = 'msg-avatar';
@@ -291,8 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             msgDiv.appendChild(avatarImg);
         }
-        
-        // 气泡包裹层
+    
         const bubbleWrapper = document.createElement('div');
         bubbleWrapper.className = 'message-content';
         bubbleWrapper.innerHTML = `
@@ -301,8 +305,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="message-time">${time}</div>
         `;
         msgDiv.appendChild(bubbleWrapper);
-        
-        const bubble = msgDiv.querySelector('.message-bubble');
+    
+        const bubble = bubbleWrapper.querySelector('.message-bubble');
         if (bubble) {
             msgDiv.dataset.plainText = bubble.innerText;
         }
@@ -315,7 +319,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function sendMessage(body, msgType = 'text', mediaUrl = null, thumbUrl = null) {
         if (!currentConv) return;
-        
+    
+        // 如果文本包含换行且不是引用消息，自动转成 v2 格式保留换行
+        if (msgType === 'text' && body.includes('\n') && !pendingQuote) {
+            body = JSON.stringify({ v: 2, text: body });
+        }
+    
         if (pendingQuote && msgType === 'text' && body.trim()) {
             const quotePayload = {
                 v: 2,
@@ -325,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
             body = JSON.stringify(quotePayload);
             msgType = 'text';
         }
-
+    
         const payload = {
             type: currentConv.type,
             to_id: currentConv.id,
@@ -603,14 +612,13 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebarPinned = !sidebarPinned;
         if (sidebarPinned) {
             sidebar.classList.remove('collapsed');
-            pinSidebarBtn.innerHTML = '▣';
+            pinSidebarBtn.innerHTML = '<i class="fa-solid fa-thumbtack"></i>';
             pinSidebarBtn.title = '取消固定';
             expandChat();
-            // 动画完成后强制调整宽度
             setTimeout(expandChat, 350);
         } else {
             sidebar.classList.add('collapsed');
-            pinSidebarBtn.innerHTML = '◰';
+            pinSidebarBtn.innerHTML = '<i class="fa-solid fa-angles-right"></i>';
             pinSidebarBtn.title = '固定侧边栏';
             expandChat();
         }
