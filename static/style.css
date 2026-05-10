@@ -729,4 +729,48 @@ body {
     text-shadow: none;
 }
 
+/* 网络图片输入弹窗 */
+.url-input-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+.url-input-dialog {
+    background: var(--chat-bg);
+    border-radius: 8px;
+    padding: 20px;
+    width: 90%;
+    max-width: 360px;
+    box-shadow: var(--shadow);
+}
+.url-input-title {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: var(--text);
+}
+.url-input-dialog input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+    background: var(--chat-bg);
+    color: var(--text);
+    font-family: inherit;
+    margin-bottom: 15px;
+}
+.url-input-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+.url-input-actions .btn {
+    min-width: 70px;
+}
+
 /* 2026-5-10 9:20: 这个 CSS 已经烂的没法维护了，全是大量重复声明 */

@@ -635,6 +635,38 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(leaveTimer);
     });
 
+    // 直链图片发送
+    const sendUrlImageBtn = document.getElementById('sendUrlImageBtn');
+    const urlInputOverlay = document.getElementById('urlInputOverlay');
+    const urlImageInput = document.getElementById('urlImageInput');
+    const urlInputCancel = document.getElementById('urlInputCancel');
+    const urlInputSend = document.getElementById('urlInputSend');
+
+    sendUrlImageBtn.addEventListener('click', () => {
+        urlInputOverlay.style.display = 'flex';
+        urlImageInput.value = '';
+        urlImageInput.focus();
+    });
+
+    urlInputCancel.addEventListener('click', () => {
+        urlInputOverlay.style.display = 'none';
+    });
+    urlInputOverlay.addEventListener('click', (e) => {
+        if (e.target === urlInputOverlay) urlInputOverlay.style.display = 'none';
+    });
+
+    urlInputSend.addEventListener('click', () => {
+        const url = urlImageInput.value.trim();
+        if (!url) { alert('请输入图片链接'); return; }
+        // 简单校验是否为http开头
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            alert('请输入完整的网络地址（http:// 或 https:// 开头）');
+            return;
+        }
+        sendMessage('', 'image', url);
+        urlInputOverlay.style.display = 'none';
+    });
+    
     // 红包领取处理（事件委托）
     document.addEventListener('click', async (e) => {
         const card = e.target.closest('.red-packet-card');

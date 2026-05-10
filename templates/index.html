@@ -52,12 +52,22 @@
                 </div>
                 <div class="more-menu" id="moreMenu" style="display: none;">
                     <button id="sendFileBtn">上传文件</button>
+                    <button id="sendUrlImageBtn">发送直链图片 (仅限网页端)</button>
                 </div>
                 <input type="file" id="fileInput" style="display: none" multiple>
             </div>
         </main>
     </div>
-
+    <div class="url-input-overlay" id="urlInputOverlay" style="display:none;">
+        <div class="url-input-dialog">
+            <div class="url-input-title">输入图片链接</div>
+            <input type="text" id="urlImageInput" placeholder="https://...">
+            <div class="url-input-actions">
+                <button id="urlInputCancel" class="btn">取消</button>
+                <button id="urlInputSend" class="btn primary">发送</button>
+            </div>
+        </div>
+    </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
