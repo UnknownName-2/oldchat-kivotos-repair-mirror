@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.get('display_name', user.get('uid')) }} 的空间</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='space.css') }}">
+</head>
+<body>
+    <div class="space-card">
+        <!-- 头像与基本信息 -->
+        <div class="profile-header">
+            <img class="profile-avatar" 
+                 src="{{ user.get('avatar_url') or url_for('static', filename='default-avatar.png') }}"
+                 alt="头像" 
+                 onerror="this.onerror=null;this.src='{{ url_for('static', filename='default-avatar.png') }}';">
+            <div class="profile-names">
+                <h1>{{ user.get('display_name') or user.get('username') or user.get('uid') }}</h1>
+                <p class="text-secondary">UID: {{ user.get('uid', '未知') }}</p>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- 详细信息区域 -->
+        <div class="info-section">
+            <div class="info-panel">
+                <h3>个性签名</h3>
+                <p>{{ user.get('signature') or '这个人很懒，什么都没写...' }}</p>
+            </div>
+
+            <div class="info-panel">
+                <h3>在线状态</h3>
+                <p>{% if user.get('is_online') %}
+                    <span class="online-dot"></span> 在线
+                   {% else %}
+                    离线
+                   {% endif %}
+                   {% if user.get('presence_status') %} · {{ user.get('presence_status') }}{% endif %}
+                </p>
+            </div>
+
+            <div class="info-panel">
+                <h3>头衔</h3>
+                <p>{{ user.get('user_title') or '暂无' }}</p>
+            </div>
+
+            {% if user.get('cover_url') %}
+            <div class="info-panel">
+                <h3>封面图</h3>
+                <img src="{{ user.get('cover_url') }}" alt="封面" style="max-width:100%; border-radius:8px;">
+            </div>
+            {% endif %}
+        </div>
+
+        <button class="back-button" onclick="window.location.href='/'">返回聊天</button>
+        <div class="extra-note">OldChat for Kivotos</div>
+    </div>
+</body>
+</html>

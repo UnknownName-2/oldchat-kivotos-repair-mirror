@@ -36,12 +36,22 @@ def create_app():
             return redirect(url_for('auth.login_page'))
         return render_template('index.html')  # 修改为 render_template
 
-    return app
-
     @app.route('/space/<uid>')
     def user_space(uid):
-        return "开发中..."
-        #return render_template('space.html', uid=uid)
+        if not g.api:
+            return redirect(url_for('auth.login_page'))
+        try:
+            profile = g.api.get_user_profile(uid)
+            base = g.api.base_url
+            for field in ['avatar_url', 'cover_url']:
+                url = profile.get(field, '')
+                if url and url.startswith('/'):
+                    profile[field] = base + url
+            return render_template('space.html', user=profile)
+        except Exception as e:
+            return f"<h2>信息获取失败</h2><p>{e}</p>", 500
+
+    return app
 
 if __name__ == '__main__':
     import logging

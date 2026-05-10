@@ -322,3 +322,8 @@ class OldChatAPI:
     def build_mention_body(self, text: str, mentions: List[Dict]) -> str:
         payload = {"v": 2, "text": text, "mentions": mentions}
         return json.dumps(payload, ensure_ascii=False)
+    
+    def get_user_profile(self, uid: str) -> Dict:
+        # Space 个人空间信息获取
+        data = self._request('GET', '/v1/users/profile', params={"uid": uid})
+        return data

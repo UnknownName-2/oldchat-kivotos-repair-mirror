@@ -416,3 +416,19 @@ def upload_only():
     finally:
         os.close(fd)
         os.unlink(tmp_path)
+
+@api_bp.route('/user/<uid>')
+def get_user(uid):
+    if not g.api:
+        return require_api()
+    try:
+        profile = g.api.get_user_profile(uid)
+        # 补全头像和封面图绝对路径
+        base = g.api.base_url
+        for field in ['avatar_url', 'cover_url']:
+            url = profile.get(field, '')
+            if url and url.startswith('/'):
+                profile[field] = base + url
+        return jsonify(profile)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
