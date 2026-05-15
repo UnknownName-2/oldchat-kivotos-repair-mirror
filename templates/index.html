@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>OldChat for Kivotos</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/' + current_theme + '/' + theme_css_file) }}">
     <meta name="uid" content="{{ session.get('uid', '') }}">
 </head>
 <body>
@@ -16,7 +16,7 @@
                 <button id="pinSidebarBtn" class="icon-btn" title="取消固定"><i class="fa-solid fa-thumbtack"></i></button>
                 <button id="aboutBtn" class="icon-btn" title="关于"><i class="fa-solid fa-circle-info"></i></button>
                 <button id="logoutBtn" class="icon-btn" title="退出登录"><i class="fa-solid fa-right-from-bracket"></i></button>
-                <button id="themeToggle" class="icon-btn" title="深浅切换"><i class="fa-solid fa-circle-half-stroke"></i></button>
+                <button id="themeMenuBtn" class="icon-btn" title="切换主题"><i class="fa-solid fa-palette"></i></button>
             </div>
             <!--
             <div class="search-box">
@@ -68,6 +68,10 @@
                 <button id="urlInputSend" class="btn primary">发送</button>
             </div>
         </div>
+    </div>
+    <div class="theme-menu" id="themeMenu" style="display: none;">
+        <div class="theme-menu-title">选择主题</div>
+        <div class="theme-menu-list" id="themeMenuList"></div>
     </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

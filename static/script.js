@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const moreBtn = document.getElementById('moreBtn');
     const moreMenu = document.getElementById('moreMenu');
     const fileInput = document.getElementById('fileInput');
-    const themeToggle = document.getElementById('themeToggle');
     const logoutBtn = document.getElementById('logoutBtn');
     const pinSidebarBtn = document.getElementById('pinSidebarBtn');
     const aboutBtn = document.getElementById('aboutBtn');
@@ -44,17 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
             contextMsgId = null;
         }
     }
-
-    function setTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-    }
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    setTheme(savedTheme);
-    themeToggle.addEventListener('click', () => {
-        const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        setTheme(newTheme);
-    });
 
     logoutBtn.addEventListener('click', () => {
         window.location.href = '/logout';
@@ -803,4 +791,48 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    // 主题切换菜单
+    const themeMenuBtn = document.getElementById('themeMenuBtn');
+    const themeMenu = document.getElementById('themeMenu');
+    const themeMenuList = document.getElementById('themeMenuList');
+
+    themeMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (themeMenu.style.display === 'block') {
+            themeMenu.style.display = 'none';
+            return;
+        }
+        fetch('/api/themes')
+            .then(r => r.json())
+            .then(data => {
+                const current = data.current;
+                themeMenuList.innerHTML = data.themes.map(t => `
+                    <div class="theme-item ${t.id === current ? 'active' : ''}" data-theme-id="${t.id}">
+                        <span>${escapeHtml(t.name)}</span>
+                        ${t.id === current ? '<span class="theme-check">✓</span>' : ''}
+                    </div>
+                `).join('');
+                themeMenuList.querySelectorAll('.theme-item').forEach(item => {
+                    item.addEventListener('click', (ev) => {
+                        const themeId = item.dataset.themeId;
+                        fetch('/api/set_theme', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({theme_id: themeId})
+                        }).then(r => r.json()).then(res => {
+                            if (res.status === 'ok') location.reload();
+                        });
+                    });
+                });
+                themeMenu.style.display = 'block';
+            });
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!themeMenu.contains(e.target) && e.target !== themeMenuBtn) {
+            themeMenu.style.display = 'none';
+        }
+    });
+
 });

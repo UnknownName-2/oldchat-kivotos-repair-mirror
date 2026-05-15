@@ -1,7 +1,7 @@
 import os
 import secrets
 from datetime import datetime
-from flask import Flask, session, g, redirect, url_for, render_template
+from flask import Flask, session, g, redirect, url_for, render_template, jsonify, request
 from auth import auth_bp
 from api import api_bp
 from oldchat_api import OldChatAPI
@@ -21,6 +21,29 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(api_bp, url_prefix='/api')
 
+    def load_themes():
+        # 加载主题配置，返回 (themes_dict, default_theme_id)
+        import json
+        themes = {}
+        default_theme = 'default'
+        theme_base = os.path.join(app.root_path, 'static', 'style')
+        mainconfig_path = os.path.join(theme_base, 'mainconfig.json')
+        if os.path.exists(mainconfig_path):
+            with open(mainconfig_path, 'r', encoding='utf-8') as f:
+                mainconfig = json.load(f)
+                default_theme = mainconfig.get('default_theme', 'default')
+        # 扫描子目录
+        if os.path.exists(theme_base):
+            for name in os.listdir(theme_base):
+                theme_dir = os.path.join(theme_base, name)
+                if os.path.isdir(theme_dir):
+                    config_path = os.path.join(theme_dir, 'config.json')
+                    if os.path.exists(config_path):
+                        with open(config_path, 'r', encoding='utf-8') as f:
+                            config = json.load(f)
+                            themes[name] = config
+        return themes, default_theme
+
     @app.before_request
     def before_request():
         g.api = None
@@ -29,6 +52,22 @@ def create_app():
             api.access_token = session['access_token']
             api.refresh_token = session['refresh_token']
             g.api = api
+            # 自动设置默认主题
+            if 'theme' not in session:
+                _, default_theme = load_themes()
+                session['theme'] = default_theme
+    
+    @app.context_processor
+    def inject_theme():
+        themes, _ = load_themes()
+        current_theme = session.get('theme', 'default')
+        # 获取当前主题配置
+        theme_config = themes.get(current_theme, {'css_file': 'style.css', 'name': current_theme})
+        return {
+            'themes': themes,
+            'current_theme': current_theme,
+            'theme_css_file': theme_config.get('css_file', 'style.css')
+        }
 
     @app.after_request
     def after_request(response):
@@ -43,6 +82,34 @@ def create_app():
         if 'access_token' not in session:
             return redirect(url_for('auth.login_page'))
         return render_template('index.html')
+
+    @app.route('/api/themes')
+    def api_themes():
+        themes, default_theme = load_themes()
+        # 返回列表，方便前端生成菜单
+        theme_list = []
+        for tid, tconf in themes.items():
+            theme_list.append({
+                'id': tid,
+                'name': tconf.get('name', tid),
+                'author': tconf.get('author', ''),
+                'version': tconf.get('version', '')
+            })
+        return jsonify({'themes': theme_list, 'default_theme': default_theme, 'current': session.get('theme', default_theme)})
+
+    @app.route('/api/set_theme', methods=['POST'])
+    def set_theme():
+        data = request.get_json()
+        theme_id = data.get('theme_id')
+        if not theme_id:
+            return jsonify({'error': 'Missing theme_id'}), 400
+        # 验证主题存在
+        themes, _ = load_themes()
+        if theme_id not in themes:
+            return jsonify({'error': 'Invalid theme'}), 404
+        session['theme'] = theme_id
+        return jsonify({'status': 'ok', 'theme': theme_id})
+
 
     @app.route('/space/<uid>')
     def user_space(uid):
