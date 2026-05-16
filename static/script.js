@@ -32,6 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const quotePreviewText = quotePreview.querySelector('.quote-preview-text');
     const cancelQuoteBtn = document.getElementById('cancelQuoteBtn');
 
+    const emojiPlazaBtn = document.getElementById('emojiPlazaBtn');
+
     const mergeMessages = document.querySelector('meta[name="theme-merge-messages"]')?.content === 'true';
     let lastRenderedMsg = null;
 
@@ -47,6 +49,11 @@ document.addEventListener('DOMContentLoaded', () => {
             contextMsgId = null;
         }
     }
+
+    emojiPlazaBtn.addEventListener('click', () => {
+        showEmojiPlaza();
+    });
+    
 
     logoutBtn.addEventListener('click', () => {
         window.location.href = '/logout';
@@ -826,6 +833,77 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    let plazaOffset = 0;
+    let plazaLoading = false;
+    let plazaHasMore = true;
+
+    async function showEmojiPlaza() {
+        const existing = document.getElementById('emojiPlazaPanel');
+        if (existing) { existing.remove(); return; }
+
+        plazaOffset = 0;
+        plazaHasMore = true;
+
+        const panel = document.createElement('div');
+        panel.id = 'emojiPlazaPanel';
+        panel.className = 'emoticon-picker';
+        panel.style.maxHeight = '400px';
+        panel.innerHTML = `
+            <div class="emoticon-grid" id="plazaGrid"></div>
+            <div style="text-align:center; margin-top:8px;" id="plazaLoadMore">
+                <button class="btn" id="plazaLoadMoreBtn">加载更多</button>
+            </div>
+        `;
+        document.body.appendChild(panel);
+
+        const grid = document.getElementById('plazaGrid');
+        const loadMoreBtn = document.getElementById('plazaLoadMoreBtn');
+
+        const loadPage = async () => {
+            if (plazaLoading || !plazaHasMore) return;
+            plazaLoading = true;
+            loadMoreBtn.textContent = '加载中…';
+            try {
+                const res = await fetch(`/api/emoji/plaza?limit=20&offset=${plazaOffset}`);
+                const data = await res.json();
+                const items = data.items || [];
+                if (items.length === 0) {
+                    plazaHasMore = false;
+                    loadMoreBtn.textContent = '没有更多了';
+                    loadMoreBtn.disabled = true;
+                    return;
+                }
+                items.forEach(item => {
+                    const imgUrl = item.url || item.media_url || '';
+                    if (!imgUrl) return;
+                    const div = document.createElement('div');
+                    div.className = 'emoticon-item';
+                    div.innerHTML = `<img src="${imgUrl}" loading="lazy">`;
+                    div.addEventListener('click', () => {
+                        sendMessage('', 'image', imgUrl);
+                        panel.remove();
+                    });
+                    grid.appendChild(div);
+                });
+                plazaOffset += items.length;
+            } catch(e) { console.error(e); }
+            finally {
+                plazaLoading = false;
+                if (plazaHasMore) loadMoreBtn.textContent = '加载更多';
+            }
+        };
+
+        loadPage();
+        loadMoreBtn.addEventListener('click', loadPage);
+
+        const closeHandler = (e) => {
+            if (!panel.contains(e.target) && e.target !== emojiPlazaBtn) {
+                panel.remove();
+                document.removeEventListener('click', closeHandler);
+            }
+        };
+        setTimeout(() => document.addEventListener('click', closeHandler), 0);
+    }
 
     expandChat();
     loadContacts().then(() => {

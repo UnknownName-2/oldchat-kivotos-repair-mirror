@@ -90,6 +90,13 @@
             </div>
         </div>
 
+        <!-- 好友申请列表 -->
+        <div class="action-section">
+            <h3>好友申请</h3>
+            <div id="friendRequestsList">加载中...</div>
+        </div>
+        <div class="divider"></div>
+
         <button class="back-button" onclick="window.location.href='/'">返回聊天</button>
         <div class="extra-note">OldChat for Kivotos</div>
     </div>
@@ -122,6 +129,42 @@
             });
         }
         loadFriends();
+
+        function loadFriendRequests() {
+            fetch('/api/friend_requests')
+                .then(r => r.json())
+                .then(data => {
+                    const list = document.getElementById('friendRequestsList');
+                    if (data.error || !data.requests || data.requests.length === 0) {
+                        list.innerHTML = '<p>暂无申请</p>';
+                        return;
+                    }
+                    list.innerHTML = data.requests.map(req => `
+                        <div class="list-item">
+                            <span>${escapeHtml(req.from_display_name || req.from_username || req.from_uid)} (${escapeHtml(req.from_uid)})</span>
+                            <span style="margin-left: auto; display: flex; gap: 5px;">
+                                <button onclick="respondRequest('${req.id}', true)">同意</button>
+                                <button onclick="respondRequest('${req.id}', false)">拒绝</button>
+                            </span>
+                        </div>
+                    `).join('');
+                });
+        }
+        loadFriendRequests();
+
+        function respondRequest(requestId, accept) {
+            fetch('/api/friend_respond', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({request_id: requestId, accept: accept})
+            }).then(r => r.json()).then(res => {
+                if (res.error) alert(res.error);
+                else {
+                    loadFriendRequests();
+                    loadFriends(); // 同时刷新好友列表
+                }
+            });
+        }
 
         function escapeHtml(text) {
             const d = document.createElement('div');

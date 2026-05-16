@@ -346,3 +346,29 @@ class OldChatAPI:
             if img and img.startswith('/'):
                 m['image_url'] = base + img
         return moments
+
+
+    def get_emoji_plaza(self, limit: int = 50, offset: int = 0, q: str = None) -> List[Dict]:
+        # 表情包广场
+        params = {"limit": limit, "offset": offset}
+        if q:
+            params["q"] = q
+        data = self._request('GET', '/v1/emoji/plaza', params=params)
+        items = data.get('items', []) or data.get('emojis', [])
+        base = self.base_url
+        for item in items:
+            for field in ['url', 'thumb_url', 'preview_url']:
+                val = item.get(field, '')
+                if val and val.startswith('/'):
+                    item[field] = base + val
+        return items
+
+    def get_friend_requests(self) -> List[Dict]:
+        data = self._request('GET', '/v1/friends/requests')
+        return data.get('requests', [])
+
+    def respond_friend_request(self, request_id: str, accept: bool) -> Dict:
+        return self._request('POST', '/v1/friends/respond', json={
+            "request_id": request_id,
+            "accept": accept
+        })

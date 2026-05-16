@@ -503,3 +503,52 @@ def post_moment():
         return jsonify(resp)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/emoji/plaza')
+def get_emoji_plaza():
+    if not g.api:
+        return require_api()
+    try:
+        limit = request.args.get('limit', 50, type=int)
+        offset = request.args.get('offset', 0, type=int)
+        q = request.args.get('q', None)
+        items = g.api.get_emoji_plaza(limit, offset, q)
+        base = g.api.base_url.rstrip('/')
+        for item in items:
+            for field in ['url', 'media_url', 'thumb_url', 'preview_url']:
+                val = item.get(field, '')
+                if val and val.startswith('/'):
+                    item[field] = base + val
+        return jsonify({'items': items})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/friend_requests')
+def get_friend_requests():
+    if not g.api:
+        return require_api()
+    try:
+        requests_list = g.api.get_friend_requests()
+        return jsonify({'requests': requests_list})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/friend_respond', methods=['POST'])
+def respond_friend_request():
+    if not g.api:
+        return require_api()
+    data = request.get_json()
+    request_id = data.get('request_id')
+    accept = data.get('accept')
+    if not request_id or accept is None:
+        return jsonify({'error': 'Missing request_id or accept'}), 400
+    try:
+        print(f"[FriendRespond] 收到 request_id={request_id}, accept={accept}")
+        resp = g.api._request('POST', '/v1/friends/respond', json={
+            "request_id": request_id,
+            "accept": accept
+        })
+        return jsonify(resp)
+    except Exception as e:
+        print(f"[FriendRespond] 错误: {e}")
+        return jsonify({'error': str(e)}), 500
