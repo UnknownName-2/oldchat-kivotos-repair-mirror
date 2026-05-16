@@ -432,3 +432,74 @@ def get_user(uid):
         return jsonify(profile)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/me')
+def get_my_profile():
+    if not g.api:
+        return require_api()
+    try:
+        data = g.api._request('GET', '/v1/me')
+        base = g.api.base_url
+        for field in ['avatar_url', 'cover_url']:
+            url = data.get(field, '')
+            if url and url.startswith('/'):
+                data[field] = base + url
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/friends/add', methods=['POST'])
+def add_friend():
+    if not g.api:
+        return require_api()
+    data = request.get_json()
+    uid = data.get('to_uid')
+    if not uid:
+        return jsonify({'error': 'Missing to_uid'}), 400
+    try:
+        resp = g.api._request('POST', '/v1/friends/request', json={"to_uid": uid})
+        return jsonify(resp)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/groups/join', methods=['POST'])
+def join_group():
+    if not g.api:
+        return require_api()
+    data = request.get_json()
+    group_id = data.get('group_id')
+    if not group_id:
+        return jsonify({'error': 'Missing group_id'}), 400
+    try:
+        resp = g.api._request('POST', '/v1/groups/join', json={"group_id": group_id})
+        return jsonify(resp)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/groups/leave', methods=['POST'])
+def leave_group():
+    if not g.api:
+        return require_api()
+    data = request.get_json()
+    group_id = data.get('group_id')
+    if not group_id:
+        return jsonify({'error': 'Missing group_id'}), 400
+    try:
+        resp = g.api._request('POST', '/v1/groups/leave', json={"group_id": group_id})
+        return jsonify(resp)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/moments/post', methods=['POST'])
+def post_moment():
+    if not g.api:
+        return require_api()
+    data = request.get_json()
+    body = data.get('body', '').strip()
+    if not body:
+        return jsonify({'error': '内容不能为空'}), 400
+    try:
+        resp = g.api._request('POST', '/v1/moments', json={"body": body, "image_url": ""})
+        return jsonify(resp)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

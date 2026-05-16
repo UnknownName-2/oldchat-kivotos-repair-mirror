@@ -154,7 +154,13 @@ def create_app():
             return render_template('space.html', user=profile, moments=moments)
         except Exception as e:
             return f"<h2>获取用户信息失败</h2><p>{e}</p>", 500
-
+    
+    @app.route('/me')
+    def my_profile():
+        if 'access_token' not in session:
+            return redirect(url_for('auth.login_page'))
+        return render_template('me.html')
+    
     return app
 
 if __name__ == '__main__':
@@ -162,4 +168,4 @@ if __name__ == '__main__':
     app = create_app()
     logger = logging.getLogger('waitress')
     logger.setLevel(logging.INFO)
-    serve(app, host='0.0.0.0', port=5000, threads=8)
+    serve(app, host='0.0.0.0', port=5000, threads=150)

@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.stopPropagation();
                 const uid = msg.from_uid;
                 if (uid) {
-                    window.location.href = `/space/${uid}`;
+                    window.open(`/space/${uid}`, '_blank');
                 }
             });
             msgDiv.appendChild(avatarImg);
@@ -618,7 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await fetch(`/api/mark_read/${msg.group_id ? 'group' : 'direct'}/${msg.group_id || msg.from_uid}`, { method: 'PUT' });
             }
         } catch (e) {}
-    }, 2000);
+    }, 4800);
 
 
     // ===== 侧边栏固定/自动隐藏（绝对定位平移） =====

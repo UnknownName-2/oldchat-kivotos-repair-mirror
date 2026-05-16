@@ -13,7 +13,9 @@
         <!-- 左侧会话列表 -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <span class="user-info">{{ session.get('user_name', '用户') }}<br><small>OldChat for Kivotos</small></span>
+                <a href="/me" target="_blank" style="text-decoration: none; color: inherit;">
+                    <span class="user-info">{{ session.get('user_name', '用户') }}<br><small>OldChat for Kivotos</small></span>
+                </a>
                 <button id="pinSidebarBtn" class="icon-btn" title="取消固定"><i class="fa-solid fa-thumbtack"></i></button>
                 <button id="aboutBtn" class="icon-btn" title="关于"><i class="fa-solid fa-circle-info"></i></button>
                 <button id="logoutBtn" class="icon-btn" title="退出登录"><i class="fa-solid fa-right-from-bracket"></i></button>
