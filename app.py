@@ -54,19 +54,34 @@ def create_app():
             g.api = api
             # 自动设置默认主题
             if 'theme' not in session:
-                _, default_theme = load_themes()
-                session['theme'] = default_theme
+                theme_from_cookie = request.cookies.get('theme')
+                if theme_from_cookie:
+                    themes, _ = load_themes()
+                    if theme_from_cookie in themes:
+                        session['theme'] = theme_from_cookie
+                    else:
+                        # cookie 中的主题无效，使用默认主题
+                        _, default_theme = load_themes()
+                        session['theme'] = default_theme
+                else:
+                    _, default_theme = load_themes()
+                    session['theme'] = default_theme
     
     @app.context_processor
     def inject_theme():
         themes, _ = load_themes()
         current_theme = session.get('theme', 'default')
-        # 获取当前主题配置
-        theme_config = themes.get(current_theme, {'css_file': 'style.css', 'name': current_theme})
+        theme_config = themes.get(current_theme, {
+            'css_file': 'style.css',
+            'name': current_theme,
+            'merge_messages': False,
+            'extra_html': ''
+        })
         return {
             'themes': themes,
             'current_theme': current_theme,
-            'theme_css_file': theme_config.get('css_file', 'style.css')
+            'theme_css_file': theme_config.get('css_file', 'style.css'),
+            'current_theme_config': theme_config
         }
 
     @app.after_request
@@ -103,12 +118,15 @@ def create_app():
         theme_id = data.get('theme_id')
         if not theme_id:
             return jsonify({'error': 'Missing theme_id'}), 400
-        # 验证主题存在
         themes, _ = load_themes()
         if theme_id not in themes:
             return jsonify({'error': 'Invalid theme'}), 404
+        
         session['theme'] = theme_id
-        return jsonify({'status': 'ok', 'theme': theme_id})
+        
+        resp = jsonify({'status': 'ok', 'theme': theme_id})
+        resp.set_cookie('theme', theme_id, max_age=365*24*60*60, path='/')
+        return resp
 
 
     @app.route('/space/<uid>')
@@ -137,7 +155,7 @@ def create_app():
         except Exception as e:
             return f"<h2>获取用户信息失败</h2><p>{e}</p>", 500
 
-    return app   # 必须放在最后
+    return app
 
 if __name__ == '__main__':
     import logging

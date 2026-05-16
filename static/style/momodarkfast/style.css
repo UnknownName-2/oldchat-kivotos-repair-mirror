@@ -258,7 +258,6 @@ body {
 	display: flex;
 	flex-direction: column;
 	max-width: 100%;
-    overflow: hidden;
     word-break: break-word;
 }
 
@@ -271,7 +270,6 @@ body {
 	font-size: 0.95rem;
 	color: white;
 	font-family: '微软雅黑','Microsoft YaHei',sans-serif;
-    overflow: hidden;
     word-break: break-word;
 }
 
@@ -279,20 +277,25 @@ body {
 	background-color: var(--bubble-other)
 }
 
+.message.other .message-bubble::before,
+.message.self .message-bubble::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    width: 0;
+    height: 0;
+    border: 7px solid transparent;
+}
 .message.other .message-bubble::before {
-	content: '';
-	position: absolute;
-	left: -7px;
-	top: 10px;
-	width: 0;
-	height: 0;
-	border: 7px solid transparent;
-	border-right-color: var(--bubble-other);
-	border-left: 0
+    left: -7px;
+    border-right-color: var(--bubble-other);
+    border-left: 0;
 }
 
-.message.self .message-bubble {
-	background-color: var(--bubble-self)
+.message.self .message-bubble::before {
+    right: -7px;
+    border-left-color: var(--bubble-self);
+    border-right: 0;
 }
 
 .message.self .message-bubble::before {
@@ -386,7 +389,6 @@ body {
 	right: 10px;
 	background: var(--chat-bg);
 	border: 1px solid var(--border);
-	box-shadow: var(--shadow);
 	z-index: 10;
 	border-radius: 6px;
 	overflow: hidden

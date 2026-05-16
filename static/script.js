@@ -31,6 +31,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const quotePreview = document.getElementById('quotePreview');
     const quotePreviewText = quotePreview.querySelector('.quote-preview-text');
     const cancelQuoteBtn = document.getElementById('cancelQuoteBtn');
+
+    const mergeMessages = document.querySelector('meta[name="theme-merge-messages"]')?.content === 'true';
+    let lastRenderedMsg = null;
+
     let pendingQuote = null;
 
     let contextMenu = null;
@@ -98,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
         chatHeader.innerHTML = `<span>${escapeHtml(name)}</span>`;
         messagesContainer.innerHTML = '';
+        lastRenderedMsg = null;
     
         // 清除该会话的已见消息记录，确保历史消息重新显示
         if (seenMsgIds[convKey]) {
@@ -151,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     
         if (currentSeen.has(msg.id)) return;
-        currentSeen.add(msg.id);
     
         const fromUid = msg.from_uid || '';
         const isSelf = fromUid.toUpperCase() === myUid.toUpperCase();
@@ -185,7 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                     `<span class="mention-highlight" data-uid="${escapeHtml(m.uid || '')}">@${escapeHtml(name)}</span>`);
                             });
                         }
-                        // 保留换行
                         textBody = textBody.replace(/\n/g, '<br>');
                         content = quoteHtml + (textBody ? `<div style="white-space: pre-wrap; word-break: break-word;">${textBody}</div>` : '');
                     } else {
@@ -261,6 +264,30 @@ document.addEventListener('DOMContentLoaded', () => {
             content = `[${msgType}] ${escapeHtml(msg.body || '')}`;
         }
     
+        // 尝试合并
+        const isPlainText = msgType === 'text' && !msg.body.trim().startsWith('{');
+        if (mergeMessages && lastRenderedMsg && 
+            lastRenderedMsg.convKey === convKey && 
+            lastRenderedMsg.from_uid === fromUid &&
+            isPlainText &&
+            !msg.burn_after_seconds) {
+            const container = lastRenderedMsg.element.querySelector('.message-content');
+            const oldTime = container.querySelector('.message-time');
+            if (oldTime) oldTime.remove();
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble merged';
+            bubble.innerHTML = content;
+            container.appendChild(bubble);
+            const newTime = document.createElement('div');
+            newTime.className = 'message-time';
+            newTime.textContent = time;
+            container.appendChild(newTime);
+            
+            currentSeen.add(msg.id);
+            return;
+        }
+    
+        // 正常渲染
         const msgDiv = document.createElement('div');
         msgDiv.className = `message ${isSelf ? 'self' : 'other'}`;
         msgDiv.dataset.msgId = msg.id;
@@ -269,7 +296,6 @@ document.addEventListener('DOMContentLoaded', () => {
         msgDiv.dataset.msgType = msg.msg_type || 'text';
     
         if (!isSelf) {
-            // 对方消息添加头像
             const avatarUrl = msg.from_avatar || '/static/default-avatar.png';
             const avatarImg = document.createElement('img');
             avatarImg.src = avatarUrl;
@@ -299,6 +325,14 @@ document.addEventListener('DOMContentLoaded', () => {
             msgDiv.dataset.plainText = bubble.innerText;
         }
         messagesContainer.appendChild(msgDiv);
+    
+        lastRenderedMsg = {
+            convKey: convKey,
+            from_uid: fromUid,
+            element: msgDiv
+        };
+    
+        currentSeen.add(msg.id);
     }
 
     function scrollToBottom() {
@@ -660,10 +694,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const url = urlImageInput.value.trim();
         if (!url) { alert('请输入图片链接'); return; }
         // 简单校验是否为http开头
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-            alert('请输入完整的网络地址（http:// 或 https:// 开头）');
-            return;
-        }
+        //if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        //    alert('请输入完整的网络地址（http:// 或 https:// 开头）');
+        //    return;
+        //}
         sendMessage('', 'image', url);
         urlInputOverlay.style.display = 'none';
     });

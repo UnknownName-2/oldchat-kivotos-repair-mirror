@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/' + current_theme + '/' + theme_css_file) }}">
     <meta name="uid" content="{{ session.get('uid', '') }}">
+    <meta name="theme-merge-messages" content="{{ current_theme_config.get('merge_messages', False) | lower }}">
 </head>
 <body>
     <div class="app-container">

@@ -775,3 +775,12 @@ body {
 .btn:active,.contact-item:active,.context-menu-item:active,.emoticon-item:active,.file-download-btn:active,.icon-btn:active,.more-menu button:active,.quote-preview .icon-btn:active,.red-packet-card:active {
 	transform: scale(0.98)
 }
+
+.message-bubble.merged {
+    margin-top: 2px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+.message-bubble.merged::before {
+    display: none;
+}
