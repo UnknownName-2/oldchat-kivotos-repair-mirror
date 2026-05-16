@@ -399,6 +399,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // 图片粘贴の上传判定
+    messageInput.addEventListener('paste', (e) => {
+        const items = (e.clipboardData || window.clipboardData).items;
+        if (!items) return;
+
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.startsWith('image/')) {
+                e.preventDefault();
+                const file = items[i].getAsFile();
+                if (!file) continue;
+                if (!currentConv) {
+                    alert('请先选择一个会话');
+                    return;
+                }
+                if (confirm(`是否发送图片 "${file.name || '粘贴的图片'}"？`)) {
+                    uploadAndSend(file);
+                }
+                break;
+            }
+        }
+    });
+
     sendBtn.addEventListener('click', () => {
         const text = messageInput.value.trim();
         if (text) {
