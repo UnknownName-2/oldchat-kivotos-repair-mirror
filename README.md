@@ -168,7 +168,7 @@ cat /tmp/pinggy_out.log | grep -E "https://.*\.free\.pinggy\.net"
 
 【项目信息】
 - 项目路径：/home/user/.super_doubao/super-doubao-runtime/workspace/oldchat-kivotos
-- 仓库地址：https://codeberg.org/ock-fix/oldchat-kivotos-fix
+- 仓库地址：https://github.com/UnknownName-2/oldchat-kivotos-repair-mirror
 - 技术栈：Python + Flask + Waitress
 - 默认端口：5000
 - API 服务器：http://43.155.218.45:8080
@@ -180,7 +180,7 @@ cat /tmp/pinggy_out.log | grep -E "https://.*\.free\.pinggy\.net"
 - 如果 waitress 模块缺失，先安装：pip install waitress
 
 【执行步骤】
-1. 检查项目目录是否存在，如果不存在就 git clone
+1. 检查项目目录是否存在，如果不存在就 下载项目中最新发布版的zip解压
 2. 检查 waitress 是否已安装，没有就安装
 3. 杀掉所有旧的 python3 app.py 进程（避免重复进程）
 4. 用 NO_PROXY 启动应用，后台运行，日志输出到 /tmp/oldchat-kivotos.log
@@ -406,4 +406,5 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 ---
 
 本项目由豆包AI(办公任务模式)和Deepseek倾情赞助。(连这一行也是我让ai写在readme里的)
-666  Codeberg配额用尽了
+
+666  Codeberg配额用尽了，豆包配额用尽了
