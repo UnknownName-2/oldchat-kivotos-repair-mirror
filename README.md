@@ -23,16 +23,14 @@
 
 ### 相关链接
 
-- 🔗 **修改版仓库**：https://codeberg.org/ock-fix/oldchat-kivotos-fix
-- 🔗 **原版项目**：https://codeberg.org/lgcr837/oldchat-kivotos
+- 🔗 **修改版仓库**: https://github.com/UnknownName-2/oldchat-kivotos-repair-mirror/edit/main/README.md
+- 🔗 **原版项目**：https://github.com/LGCR837/oldchat-kivotos-mirror
 
 ---
 
 ## 📦 下载
 
 最新版本请从 **release 文件夹** 中下载，选择版本号最大的即可。
-
-下载地址：https://codeberg.org/ock-fix/oldchat-kivotos-fix/src/branch/main/release
 
 ### 版本历史
 
